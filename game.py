@@ -5,8 +5,41 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-x_cac = 227,300
-y_cac = 296,437
+# initialize variable
+land = 0
+dino_position_down_left = 0
+cactus_y = 0
+ptero_y = 0
+obstacle_detection_start = 0
+obstacle_detection_end = 0
+
+
+def locater():
+    # find dino icon
+    dino_img = './dino icon.png'
+    dino_img = Image.open(dino_img)
+    # dino_img.show()
+    screenshot = ImageGrab.grab().convert('L')
+    # screenshot.show()
+    # find position of dino_img in screenshot
+    position_x, position_y = pyautogui.locateCenterOnScreen(dino_img)
+    print('x: {}, y: {}'.format(position_x,position_y))
+    # pyautogui.moveTo(position_x, position_y)
+    # time.sleep(5)
+    global land
+    global sky
+    global dino_position_down_left
+    global cactus_y
+    global ptero_y
+    global obstacle_detection_end
+    global obstacle_detection_start 
+    land= position_y 
+    sky = position_y - 70
+    dino_position_down_left = position_x - 30, position_y+30
+    cactus_y = position_y - 35
+    ptero_y = position_y - 40
+    obstacle_detection_start = position_x + 100
+    obstacle_detection_end = position_x +170
 
 def click(key):
     pyautogui.keyDown(key)
@@ -15,51 +48,48 @@ def click(key):
 
 def isCollision(data):
 # Check colison for birds
-    # for i in range(x_cac):
-    #     for j in range(y_cac):
-    #         if data[i, j] < 171:
-    #             click("down")
-    #             return
+    for i in range(obstacle_detection_start,obstacle_detection_end):
+        for j in range(sky, ptero_y):
+            if data[i, j] < 171:
+                click("down")
+                return
  # Check colison for cactus
-    for i in range(227,300):
-        for j in range(296,437):
+    for i in range(obstacle_detection_start,obstacle_detection_end):
+        for j in range(cactus_y, land):
             if data[i, j] < 100:
+                print(i,j)
                 click("up")
                 return
     return
 
-def displayImage(image):
-    mngr = plt.get_current_fig_manager()
-    # to put it into the upper left corner for example:
-    mngr.window.setGeometry = (1600,1800,928, 1228)
-    imgplot = plt.imshow(image)
-    plt.ion()
-    plt.show()
-    plt.close()
-
 if __name__ == "__main__":
+    
+    locater()
+
     time.sleep(5)
     click('up') 
+
     
     while True:
 
         image = ImageGrab.grab().convert('L')
-        # pil_image = Image.open(image)
         print(image)
-        # displayImage(image)
         data = image.load()
+        # pass the image to genetic algorithm
+        # get result(1-jump,0-stay,-1-duck)
         isCollision(data)
         
         # Draw the rectangle for cactus
         # x
-        # for i in range(227,300):
+        # for i in range(obstacle_detection_start,obstacle_detection_end):
         #     # y
-        #     for j in range(296, 437):
-        #          data[i, j] = 0
+        #     for j in range(cactus_y, land):
+        #     #     print(i,j)
+        #         data[i,j] = 0      
         
         # # Draw the rectangle for birds
-        # for i in range(530, 560):
-        #     for j in range(174, 550):
+        # for i in range(obstacle_detection_start, obstacle_detection_end):
+        #     for j in range(sky, ptero_y):
         #         data[i, j] = 171
 
         # image.show()
